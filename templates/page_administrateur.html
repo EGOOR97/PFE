@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter nouveau utilisateur</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Amber palette
+                        amber: {
+                            DEFAULT: "#f59e0b",
+                            light: "#fbbf24",
+                            pale: "#fef3c7"
+                        },
+                        // Emerald palette
+                        emerald: {
+                            DEFAULT: "#059669",
+                            light: "#10b981",
+                            pale: "#d1fae5"
+                        },
+                        // Stone palette
+                        stone: {
+                            50: "#fafaf9",
+                            100: "#f5f5f4",
+                            200: "#e7e5e4",
+                            600: "#57534e",
+                            800: "#292524",
+                            900: "#1c1917"
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('user-form').addEventListener('submit', function(e){
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('admin-name', document.getElementById('admin-name').value);
+            formData.append('user-name', document.getElementById('user-name').value);
+            formData.append('password', document.getElementById('password').value);
+            formData.append('email', document.getElementById('email').value);
+
+            fetch('/add_admin', {  
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                alert(data.message);
+                if(data.status === 'success'){
+                    window.location.href = data.redirect;
+                } else {
+                // password empty
+                document.getElementById("password").value = "";
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur serveur');
+            });
+        });
+    });
+
+    if(data.status === "success"){
+        window.location.href = data.redirect
+    }else{
+        alert(data.message)
+        document.getElementById("password").value = ""  
+    }
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(140deg, #fef3c7 0%, #fafaf9 50%, #ffffff 100%);
+            min-height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="flex items-center justify-between px-6 py-4" style="background: linear-gradient(-45deg, #fafaf9, #fef3c7, #ecfdf5, #fafaf9);">
+        <!-- Logo + nom site -->
+        <div class="flex items-center gap-3 cursor-pointer group">
+            <img src="/static/logo_pfe.jpeg" alt="logo" class="w-10 h-10 rounded-lg object-cover">
+            <span class="text-2xl font-bold bg-gradient-to-r from-amber-700 to-emerald-700 bg-clip-text text-transparent">DataCommerce</span>
+        </div>
+    </header>
+
+    <main class="p-6 max-w-lg min-h-[630px] mx-auto mt-8">
+        <div class="bg-white rounded-xl shadow-lg border border-stone-200 p-8 relative overflow-hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#f59e0b,#fbbf24,#10b981);"></div>
+            <h1 class="text-3xl font-bold text-stone-800 mb-4">
+                <i class="fas fa-users text-primary mr-2" style="color:#f59e0b;"></i>Créer nouveau utilisateur
+            </h1>
+
+            <form id="user-form" method="POST" class="space-y-6">
+                
+                <!-- Nom d'administrateur -->
+                <div>
+                    <label for="admin-name" class="block text-sm font-medium text-stone-600">
+                        Nom d'administrateur <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="admin-name" name="admin-name" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+
+                <!-- Nom d'utilisateur -->
+                <div>
+                    <label for="user-name" class="block text-sm font-medium text-stone-600">
+                        Nom d'utilisateur <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="user-name" name="user-name" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+
+                <!-- Email -->
+                <div>
+                        <label for="email" class="block text-sm font-medium text-stone-600 mb-1">
+                                Adresse email
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-envelope text-gray-400"></i>
+                            </div>
+                            <input id="email" name="email" type="email" required 
+                                    class="form-input pl-10 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                    placeholder="votre@email.com">
+                        </div>
+                </div>
+
+                <!-- Mot de passe -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-stone-600 mb-1">
+                                Mot de passe
+                    </label>
+                    <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input id="password" name="password" type="password" required 
+                                       class="form-input pl-10 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                       placeholder="••••••••">
+                    </div>
+                </div>
+
+                <!-- Boutons -->
+                <div class="flex flex-col gap-4 pt-4">
+                    <button type="submit"
+                            class="flex-1 py-3 text-white rounded-full font-semibold transition"
+                            style="background:linear-gradient(90deg,#f59e0b,#fbbf24,#10b981,#059669);box-shadow:0 10px 25px rgba(245,158,11,0.3);"
+                            onmouseover="this.style.transform='translateY(-2px)'"
+                            onmouseout="this.style.transform=''">
+                        <i class="fas fa-plus-circle mr-2"></i>Ajouter
+                    </button>
+                    <button type="reset"
+                            class="flex-1 py-3 bg-stone-100 text-stone-800 rounded-full font-semibold hover:bg-stone-200 transition border border-stone-200">
+                        Annuler
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+</body>
+</html>

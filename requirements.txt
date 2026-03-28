@@ -1,0 +1,12 @@
+flask
+flask-sqlalchemy
+psycopg2-binary
+streamlit
+pandas
+numpy
+groq
+scipy
+plotly
+reportlab
+openpyxl
+werkzeug

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataInsight- Analyse E-commerce Intelligente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            overflow-x: hidden;
+        }
+
+        /* Gradient Animation */
+        .gradient-bg {
+            background: linear-gradient(-45deg, #fafaf9, #fef3c7, #ecfdf5, #fafaf9);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .float-anim { animation: float 6s ease-in-out infinite; }
+        .float-anim-delay { animation: float 6s ease-in-out infinite 3s; }
+
+        /* Glow Effect */
+        .glow {
+            box-shadow: 0 0 60px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Glass Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Chart Animation */
+        @keyframes growUp {
+            from { height: 0; }
+            to { height: var(--height); }
+        }
+        .chart-bar {
+            animation: growUp 2s ease-out forwards;
+        }
+
+        /* Pulse Ring */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        .pulse-ring::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid rgba(99, 102, 241, 0.5);
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        #lightSettings {
+            max-width: 350px; /* réduire la largeur */
+            margin-top: 1rem; /* espace au-dessus */
+            position: relative; /* pour que top fonctionne si tu veux */
+            top: 60px; /* décale légèrement vers le bas */
+        }  
+    </style>
+<base target="_blank">
+</head>
+<body class="bg-stone-50 text-stone-800">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass border-b border-amber-200/50 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer group">
+                    
+                    <img src="/static/logo_pfe.jpeg" alt="logo" class="w-16 h-16 rounded-lg object-cover">
+                    
+                    <span class="text-2xl font-bold bg-gradient-to-r from-amber-700 to-emerald-700 bg-clip-text text-transparent">
+                        DataInsight
+                    </span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#features" class="text-stone-600 hover:text-stone-800 transition-colors text-sm font-medium">Fonctionnalités</a>
+                    <a href="#about" class="text-stone-600 hover:text-stone-800 transition-colors text-sm font-medium">À propos</a>
+                    <a href="#home" class="text-stone-600 hover:text-stone-800 transition-colors text-sm font-medium">Accueil</a>
+                </div>
+
+                <!-- Auth Buttons -->
+                <div class="flex items-center gap-4">
+                    <button onclick="openLogin()" class="hidden sm:block text-stone-600 hover:text-stone-800 transition-colors text-sm font-medium px-4 py-2">
+                        Connexion
+                    </button>
+                    <button id="openSettings" class="px-6 py-3 bg-gradient-to-r from-amber-500 to-emerald-600 text-white rounded-full font-bold text-sm hover:shadow-xl transition-all transform hover:scale-105 shadow-lg">
+                        Paramètres légers
+                    </button>
+
+                <!-- Paramètres légers (hidden by default) -->
+                    <div id="lightSettings" class="hidden mt-6 max-w-[350px] mx-auto p-6 bg-white rounded-xl glass">
+                        <h3 class="text-lg font-semibold mb-4 text-stone-800">Paramètres</h3>
+                        <div class="mb-4">
+                            <label class="text-sm text-stone-600">Fuseau horaire</label>
+                            <select id="paramFuseau" class="w-full mt-1 p-2 rounded bg-white/10 text-stone-800 border border-white/20">
+                                <option value="GMT+1">GMT+1</option>
+                                <option value="GMT+0">GMT+0</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="text-sm text-stone-600">Objectif</label>
+                            <input id="paramObjectif" type="text" class="w-full mt-1 p-2 rounded bg-white/10 text-stone-800 border border-white/20" placeholder="Ex: Suivi des ventes">
+                        </div>
+                        <button id="saveSettings" class="w-full py-2 mt-2 bg-gradient-to-r from-amber-500 to-emerald-600 rounded text-stone-800 font-medium hover:bg-indigo-500 transition-colors">Enregistrer</button>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden text-stone-600 hover:text-stone-800" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden glass border-t border-amber-200/50">
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <a href="#features" class="block px-3 py-2 text-stone-600 hover:text-stone-800 hover:bg-amber-50 rounded-lg">Fonctionnalités</a>
+                <a href="#about" class="block px-3 py-2 text-stone-600 hover:text-stone-800 hover:bg-amber-50 rounded-lg">À propos</a>
+                <a href="#home" class="block px-3 py-2 text-stone-600 hover:text-stone-800 hover:bg-amber-50 rounded-lg">Tarifs</a>
+                <div class="pt-4 border-t border-amber-200/50 mt-4">
+                    <button onclick="openLogin()" class="w-full text-left px-3 py-2 text-stone-600 hover:text-stone-800">Connexion</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center gradient-bg pt-20 overflow-hidden">
+        <!-- Background Elements -->
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute -top-40 -right-40 w-96 h-96 bg-amber-300/30 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-300/30 rounded-full blur-3xl"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-yellow-200/20 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 grid lg:grid-cols-2 gap-12 items-center">
+            <!-- Left Content -->
+            <div class="text-center lg:text-left z-10">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-6 reveal">
+                    <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                    <span class="text-sm text-stone-600">Nouveau : IA Prédictive 2.0</span>
+                </div>
+                
+                <h1 class="text-5xl lg:text-7xl font-bold mb-6 leading-tight reveal" style="transition-delay: 0.1s">
+                    Transformez vos données en 
+                    <span class="bg-gradient-to-r from-amber-600 via-yellow-600 to-emerald-600 bg-clip-text text-transparent">
+                        décisions gagnantes
+                    </span>
+                </h1>
+                
+                <p class="text-xl text-stone-600 mb-8 leading-relaxed max-w-2xl reveal" style="transition-delay: 0.2s">
+                    Plateforme d'analyse intelligente pour e-commerce. Visualisez vos performances, 
+                    prédisez les tendances et maximisez vos revenus en temps réel.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start reveal" style="transition-delay: 0.3s">
+
+                    <button onclick="showReport()" class="group relative px-8 py-4 bg-gradient-to-r from-amber-500 to-emerald-600 rounded-full font-semibold text-lg overflow-hidden transition-all hover:shadow-2xl hover:shadow-indigo-500/50 hover:scale-105">
+                        <span class="relative z-10 flex items-center gap-2">
+                            Voir un rapport
+                            <i class="fas fa-chart-bar transform group-hover:translate-x-1 transition-transform"></i>
+                        </span>
+                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-600 to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </button>
+
+                    <button onclick="showDemo()" class="px-8 py-4 glass rounded-full font-semibold text-lg hover:bg-white/10 transition-all flex items-center gap-2 group">
+                            <i class="fas fa-play text-amber-600 group-hover:scale-110 transition-transform"></i>
+                            Voir la démo
+                    </button>
+
+                </div>
+
+                <!-- Trust Badges -->
+                <div class="mt-12 pt-8 border-t border-amber-200/50 reveal" style="transition-delay: 0.4s">
+                    <p class="text-sm text-stone-500 mb-4">Trusté par plus de 500+ entreprises</p>
+                    <div class="flex flex-wrap justify-center lg:justify-start gap-6 opacity-50">
+                        <i class="fab fa-shopify text-3xl hover:text-stone-800 transition-colors cursor-pointer"></i>
+                        <i class="fab fa-amazon text-3xl hover:text-stone-800 transition-colors cursor-pointer"></i>
+                        <i class="fab fa-ebay text-3xl hover:text-stone-800 transition-colors cursor-pointer"></i>
+                        <i class="fab fa-stripe text-3xl hover:text-stone-800 transition-colors cursor-pointer"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Content - Dashboard Preview -->
+            <div class="relative lg:h-[600px] flex items-center justify-center reveal" style="transition-delay: 0.5s">
+                <!-- Main Dashboard Card -->
+                <div class="relative w-full max-w-lg glass rounded-2xl p-6 glow float-anim">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-lg font-semibold">Tableau de bord</h3>
+                            <p class="text-sm text-stone-500">Vue d'ensemble</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-amber-50 rounded-xl p-4 border border-amber-200/50">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fas fa-euro-sign text-green-400"></i>
+                                <span class="text-xs text-stone-500">Revenus</span>
+                            </div>
+                            <p class="text-2xl font-bold">€48,290</p>
+                            <span class="text-xs text-green-400">+12.5%</span>
+                        </div>
+                        <div class="bg-amber-50 rounded-xl p-4 border border-amber-200/50">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fas fa-shopping-cart text-blue-400"></i>
+                                <span class="text-xs text-stone-500">Commandes</span>
+                            </div>
+                            <p class="text-2xl font-bold">1,284</p>
+                            <span class="text-xs text-green-400">+8.2%</span>
+                        </div>
+                    </div>
+
+                    <!-- Chart -->
+                    <div class="bg-amber-50 rounded-xl p-4 border border-amber-200/50 mb-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-sm font-medium">Ventes mensuelles</span>
+                            <select class="bg-transparent text-xs text-stone-500 border-none outline-none">
+                                <option>2024</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end justify-between h-32 gap-2">
+                            <div class="flex-1 bg-amber-200/30 rounded-t-lg relative overflow-hidden" style="--height: 40%">
+                                <div class="absolute bottom-0 w-full bg-gradient-to-t from-amber-500 to-amber-300 chart-bar" style="--height: 40%"></div>
+                            </div>
+                            <div class="flex-1 bg-amber-200/30 rounded-t-lg relative overflow-hidden" style="--height: 65%">
+                                <div class="absolute bottom-0 w-full bg-gradient-to-t from-amber-500 to-amber-300 chart-bar" style="--height: 65%; animation-delay: 0.1s"></div>
+                            </div>
+                            <div class="flex-1 bg-amber-200/30 rounded-t-lg relative overflow-hidden" style="--height: 45%">
+                                <div class="absolute bottom-0 w-full bg-gradient-to-t from-amber-500 to-amber-300 chart-bar" style="--height: 45%; animation-delay: 0.2s"></div>
+                            </div>
+                            <div class="flex-1 bg-emerald-200/30 rounded-t-lg relative overflow-hidden" style="--height: 80%">
+                                <div class="absolute bottom-0 w-full bg-gradient-to-t from-emerald-500 to-emerald-300 chart-bar" style="--height: 80%; animation-delay: 0.3s"></div>
+                            </div>
+                            <div class="flex-1 bg-emerald-200/30 rounded-t-lg relative overflow-hidden" style="--height: 55%">
+                                <div class="absolute bottom-0 w-full bg-gradient-to-t from-emerald-500 to-emerald-300 chart-bar" style="--height: 55%; animation-delay: 0.4s"></div>
+                            </div>
+                            <div class="flex-1 bg-emerald-200/30 rounded-t-lg relative overflow-hidden" style="--height: 90%">
+                                <div class="absolute bottom-0 w-full bg-gradient-to-t from-emerald-500 to-emerald-300 chart-bar" style="--height: 90%; animation-delay: 0.5s"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                                    <i class="fas fa-check text-green-400 text-xs"></i>
+                                </div>
+                                <span>Nouvelle commande #1234</span>
+                            </div>
+                            <span class="text-stone-500 text-xs">2m</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                    <i class="fas fa-user text-blue-400 text-xs"></i>
+                                </div>
+                                <span>Nouvel utilisateur inscrit</span>
+                            </div>
+                            <span class="text-stone-500 text-xs">5m</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Elements -->
+                <div class="absolute -top-4 -right-4 glass rounded-xl p-4 float-anim-delay hidden lg:block">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center pulse-ring relative">
+                            <i class="fas fa-arrow-trend-up text-green-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-stone-500">Croissance</p>
+                            <p class="font-bold text-green-400">+24.5%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="absolute -bottom-4 -left-4 glass rounded-xl p-4 float-anim hidden lg:block" style="animation-delay: 1s">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                            <i class="fas fa-brain text-purple-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-stone-500">Prédiction IA</p>
+                            <p class="font-bold">95% précision</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <i class="fas fa-chevron-down text-stone-500 text-xl"></i>
+        </div>
+    </section>
+
+    <section id="about" class="py-24 bg-white text-stone-800">
+        <div class="max-w-5xl mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold mb-6">À propos de DataInsight</h2>
+            <p class="text-lg text-stone-600 leading-relaxed mb-4">
+                DataInsightest une plateforme d'analyse intelligente pour e-commerce qui vous aide à visualiser vos performances,
+                anticiper les tendances et prendre des décisions stratégiques basées sur les données.
+            </p>
+            <p class="text-lg text-stone-600 leading-relaxed">
+                Notre mission est de rendre l'analyse des données simple, interactive et accessible pour toutes les entreprises,
+                afin qu'elles puissent maximiser leur croissance et leurs revenus.
+            </p>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-24 bg-stone-50 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-4xl font-bold mb-4">Fonctionnalités puissantes</h2>
+                <p class="text-stone-500 text-lg max-w-2xl mx-auto">
+                    Tout ce dont vous avez besoin pour analyser, comprendre et faire croître votre business e-commerce
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="group glass rounded-2xl p-8 hover:bg-white/10 transition-all duration-300 hover:transform hover:-translate-y-2 reveal">
+                    <div class="w-14 h-14 rounded-xl bg-indigo-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-chart-pie text-2xl text-amber-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Analytics en temps réel</h3>
+                    <p class="text-stone-500 leading-relaxed">
+                        Visualisez vos performances commerciales instantanément avec des tableaux de bord dynamiques et personnalisables.
+                    </p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="group glass rounded-2xl p-8 hover:bg-white/10 transition-all duration-300 hover:transform hover:-translate-y-2 reveal" style="transition-delay: 0.1s">
+                    <div class="w-14 h-14 rounded-xl bg-purple-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-brain text-2xl text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">IA Prédictive</h3>
+                    <p class="text-stone-500 leading-relaxed">
+                        Anticipez les tendances du marché et optimisez votre stock grâce à nos algorithmes d'intelligence artificielle.
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="group glass rounded-2xl p-8 hover:bg-white/10 transition-all duration-300 hover:transform hover:-translate-y-2 reveal" style="transition-delay: 0.2s">
+                    <div class="w-14 h-14 rounded-xl bg-pink-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-chart-line text-2xl text-amber-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Visualisation des données</h3>
+                    <p class="text-stone-500 leading-relaxed">
+                        Transformez vos données en graphiques interactifs faciles à comprendre.
+                    </p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="group glass rounded-2xl p-8 hover:bg-white/10 transition-all duration-300 hover:transform hover:-translate-y-2 reveal">
+                    <div class="w-14 h-14 rounded-xl bg-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-file-upload text-2xl text-amber-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Import de données</h3>
+                    <p class="text-stone-500 leading-relaxed">
+                        Importez facilement vos fichiers Excel ou CSV pour analyser vos données.
+                    </p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="group glass rounded-2xl p-8 hover:bg-white/10 transition-all duration-300 hover:transform hover:-translate-y-2 reveal" style="transition-delay: 0.1s">
+                    <div class="w-14 h-14 rounded-xl bg-green-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-file-alt text-2xl text-green-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Rapports automatisés</h3>
+                    <p class="text-stone-500 leading-relaxed">
+                        Recevez des rapports détaillés par email avec les KPIs essentiels pour suivre votre croissance.
+                    </p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="group glass rounded-2xl p-8 hover:bg-white/10 transition-all duration-300 hover:transform hover:-translate-y-2 reveal" style="transition-delay: 0.2s">
+                    <div class="w-14 h-14 rounded-xl bg-yellow-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-shield-alt text-2xl text-yellow-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Sécurité maximale</h3>
+                    <p class="text-stone-500 leading-relaxed">
+                        Vos données sont chiffrées et protégées selon les normes les plus strictes de l'industrie (RGPD, SOC2).
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-amber-50 to-emerald-50"></div>
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.05"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
+        
+        <div class="relative max-w-4xl mx-auto px-4 text-center reveal">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Prêt à booster votre e-commerce ?</h2>
+            <p class="text-xl text-stone-700 mb-8 max-w-2xl mx-auto">
+                Rejoignez plus de 500 entreprises qui utilisent DataInsightpour prendre de meilleures décisions basées sur les données.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button  class="px-8 py-4 bg-gradient-to-r from-amber-500 to-emerald-600 text-white rounded-full font-bold text-lg hover:shadow-2xl transition-all transform hover:scale-105 shadow-xl">
+                    Bienvenue !
+                </button>
+            </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-stone-900 border-t border-amber-200/50 pt-16 pb-8" style="background: linear-gradient(135deg, #1c1917, #292524, #1c1917);"">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+                <div class="col-span-2 md:col-span-1">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-emerald-600 flex items-center justify-center">
+                            <i class="fas fa-chart-line text-stone-800 text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">DataInsight</span>
+                    </div>
+                    <p class="text-stone-500 text-sm mb-4">
+                        La plateforme d'analyse intelligente pour e-commerce qui vous aide à prendre de meilleures décisions.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <i class="fab fa-twitter text-stone-500 hover:text-stone-800"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <i class="fab fa-linkedin text-stone-500 hover:text-stone-800"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <i class="fab fa-github text-stone-500 hover:text-stone-800"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4 text-white">Produit</h4>
+                    <ul class="space-y-2 text-sm text-stone-500">
+                        <li><a href="#" class="hover:text-stone-800 transition-colors">Fonctionnalités</a></li>
+                        <li><a href="#" class="hover:text-stone-800 transition-colors">Intégrations</a></li>
+                        <li><a href="#" class="hover:text-stone-800 transition-colors">Tarifs</a></li>
+                        <li><a href="#" class="hover:text-stone-800 transition-colors">Changelog</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-4 text-white">Ressources</h4>
+                    <ul class="space-y-2 text-sm text-stone-500">
+                        <li><a href="#" class="hover:text-stone-800 transition-colors">Documentation</a></li>
+                        <li><a href="#" class="hover:text-stone-800 transition-colors">Blog</a></li>
+                        <li><a href="#" class="hover:text-stone-800 transition-colors">Tutoriels</a></li>
+                        <li><a href="#" class="hover:text-stone-800 transition-colors">Support</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-4 text-white">Entreprise</h4>
+                    <ul class="space-y-2 text-sm text-stone-500">
+                        <li><a href="#" class="hover:text-stone-800 transition-colors">À propos</a></li>
+                        <li><a href="#" class="hover:text-stone-800 transition-colors">Carrières</a></li>
+                        <li><a href="#" class="hover:text-stone-800 transition-colors">Contact</a></li>
+                        <li><a href="#" class="hover:text-stone-800 transition-colors">Mentions légales</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-amber-200/50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm text-stone-500">© 2024 DataInsight. Tous droits réservés.</p>
+                <div class="flex gap-6 text-sm text-stone-500">
+                    <a href="#" class="hover:text-stone-800 transition-colors">Politique de confidentialité</a>
+                    <a href="#" class="hover:text-stone-800 transition-colors">Conditions d'utilisation</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeLogin()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="glass-strong bg-stone-50 rounded-2xl w-full max-w-md p-8 border border-amber-200/50 transform transition-all">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">Connexion</h3>
+                    <button onclick="closeLogin()" class="text-stone-500 hover:text-stone-800">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-stone-500 mb-2">Email</label>
+                        <input type="email" required class="w-full px-4 py-3 bg-amber-50 border border-amber-200/50 rounded-lg focus:outline-none focus:border-indigo-500 transition-colors" placeholder="votre@email.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-stone-500 mb-2">Mot de passe</label>
+                        <input type="password" required class="w-full px-4 py-3 bg-amber-50 border border-amber-200/50 rounded-lg focus:outline-none focus:border-indigo-500 transition-colors" placeholder="••••••••">
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <label class="flex items-center gap-2 text-stone-500">
+                            <input type="checkbox" class="rounded bg-white/10 border-white/20">
+                            Se souvenir de moi
+                        </label>
+                        <a href="#" class="text-amber-600 hover:text-indigo-300">Mot de passe oublié ?</a>
+                    </div>
+                    <button type="submit"  href="{{ url_for('login_user') }}" class="w-full py-3 bg-gradient-to-r from-amber-500 to-emerald-600 rounded-lg font-semibold hover:shadow-lg hover:shadow-indigo-500/30 transition-all">
+                        Se connecter
+                    </button>
+                </form>
+                <p class="mt-6 text-center text-sm text-stone-500">
+                    Pas encore de compte ? 
+                    <button onclick="switchToSignup()" class="text-amber-600 hover:text-indigo-300 font-medium">S'inscrire</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeSignup()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="glass-strong bg-stone-50 rounded-2xl w-full max-w-md p-8 border border-amber-200/50">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">Créer un compte</h3>
+                    <button onclick="closeSignup()" class="text-stone-500 hover:text-stone-800">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form onsubmit="handleSignup(event)" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm text-stone-500 mb-2">Prénom</label>
+                            <input type="text" required class="w-full px-4 py-3 bg-amber-50 border border-amber-200/50 rounded-lg focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Jean">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-stone-500 mb-2">Nom</label>
+                            <input type="text" required class="w-full px-4 py-3 bg-amber-50 border border-amber-200/50 rounded-lg focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Dupont">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-stone-500 mb-2">Email</label>
+                        <input type="email" required class="w-full px-4 py-3 bg-amber-50 border border-amber-200/50 rounded-lg focus:outline-none focus:border-indigo-500 transition-colors" placeholder="jean.dupont@entreprise.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-stone-500 mb-2">Mot de passe</label>
+                        <input type="password" required class="w-full px-4 py-3 bg-amber-50 border border-amber-200/50 rounded-lg focus:outline-none focus:border-indigo-500 transition-colors" placeholder="••••••••">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-stone-500 mb-2">Nom de l'entreprise</label>
+                        <input type="text" class="w-full px-4 py-3 bg-amber-50 border border-amber-200/50 rounded-lg focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Mon E-commerce">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-500 to-emerald-600 rounded-lg font-semibold hover:shadow-lg hover:shadow-indigo-500/30 transition-all">
+                        Créer mon compte gratuitement
+                    </button>
+                </form>
+                <p class="mt-6 text-center text-sm text-stone-500">
+                    Déjà un compte ? 
+                    <button onclick="switchToLogin()" class="text-amber-600 hover:text-indigo-300 font-medium">Se connecter</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <div class="glass-strong px-6 py-4 rounded-xl border-l-4 border-green-500 flex items-center gap-3 shadow-2xl">
+            <i class="fas fa-check-circle text-green-400 text-xl"></i>
+            <div>
+                <h4 class="font-semibold text-sm">Succès</h4>
+                <p class="text-xs text-stone-500" id="toastMessage">Opération réussie</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Scroll Reveal Animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('glass', 'shadow-lg');
+                navbar.classList.remove('border-transparent');
+            } else {
+                navbar.classList.remove('glass', 'shadow-lg');
+                navbar.classList.add('border-transparent');
+            }
+        });
+
+        // Mobile Menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Modal Functions
+        function openLogin() {
+            window.location.href = "/login";  // ← route Flask, pas le chemin fichier
+        }
+
+        function closeLogin() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function openSignup() {
+            document.getElementById('signupModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSignup() {
+            document.getElementById('signupModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function switchToSignup() {
+            closeLogin();
+            setTimeout(openSignup, 100);
+        }
+
+        function switchToLogin() {
+            closeSignup();
+            setTimeout(openLogin, 100);
+        }
+
+
+        function showReport() {
+            showToast("Ouverture d'un rapport de démonstration...");
+        }
+
+       
+
+        // Form Handlers
+        function handleLogin(e) {
+            e.preventDefault();
+            showToast('Connexion réussie ! Redirection...');
+            setTimeout(() => {
+                closeLogin();
+            }, 1500);
+        }
+
+        function handleSignup(e) {
+            e.preventDefault();
+            showToast('Compte créé avec succès ! Bienvenue sur DataInsight.');
+            setTimeout(() => {
+                closeSignup();
+            }, 1500);
+        }
+
+       
+
+        function showDemo() {
+            showToast('Démarrage de la démo interactive...');
+        }
+
+        function contactSales() {
+            showToast('Redirection vers le formulaire de contact...');
+        }
+
+        // Toast Notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Close modals on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeLogin();
+                closeSignup();
+            }
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    // Close mobile menu if open
+                    document.getElementById('mobileMenu').classList.add('hidden');
+                }
+            });
+        });
+
+        // Toggle settings panel
+        document.getElementById('openSettings').addEventListener('click', () => {
+            const panel = document.getElementById('lightSettings');
+            panel.classList.toggle('hidden');
+
+
+            // Charger les paramètres depuis localStorage
+            if (!panel.classList.contains('hidden')) {
+
+                document.getElementById('paramFuseau').value = '';
+                document.getElementById('paramObjectif').value = '';
+            }
+        });
+
+            // Sauvegarder
+            document.getElementById('saveSettings').addEventListener('click', () => {
+                localStorage.setItem('param_fuseau', document.getElementById('paramFuseau').value);
+                localStorage.setItem('param_objectif', document.getElementById('paramObjectif').value);
+
+            // Afficher toast
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = "Paramètres enregistrés !";
+            toast.classList.remove('translate-y-20', 'opacity-0');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 1500);
+
+            // Fermer le formulaire après enregistrement
+            document.getElementById('lightSettings').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>

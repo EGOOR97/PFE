@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <base target="_self">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application de Gestion de Projets</title>
+    <meta name="description" content="Application web pour la gestion de projets avec authentification, création de projets et téléchargement de fichiers">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+
+    
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: white;
+            border: 2px solid #e7e5e4;
+            border-radius: 12px;
+            font-size: 15px;
+            color: #292524;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: #a8a29e;
+        }
+        
+    </style>
+</head>
+<body class="bg-[#fafaf9]">
+
+    <!-- Page de Login -->
+    <div id="login-page" class="page active min-h-screen">
+
+        <!-- Conteneur principal en 2 colonnes -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 h-screen">
+
+            <!-- Colonne GAUCHE : Image -->
+            <div class="sticky top-0 h-screen hidden lg:block image-side overflow-hidden">
+                <img 
+                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1470&q=80" 
+                    alt="background" 
+                    class="absolute inset-0 w-full h-full object-cover"
+                >
+                
+            </div>
+
+            <!-- Colonne DROITE : Formulaire (ton code original presque intact) -->
+            <div class="flex items-center justify-center bg-[#fafaf9] py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-md w-full bg-white border-2 border-[#e7e5e4] rounded-2xl p-8 shadow-xl relative overflow-hidden">
+                        <div class="mx-auto h-16 w-16 mb-4">
+                            <img src="/static/logo_pfe.jpeg" alt="logo" class="w-full h-full rounded-2xl object-cover shadow-lg">
+                        </div>
+                        <h2 class="mt-6 text-3xl font-extrabold text-[#292524]">
+                            Connexion à votre compte
+                        </h2>
+                        <p class="mt-2 text-sm text-[#78716c]">
+                            Accédez à votre espace de gestion de projets
+                        </p>
+                    </div>
+
+                    <form id="login-form" method="POST"  class="mt-8 space-y-6">
+                        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#f59e0b,#fbbf24,#10b981);"></div>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="username" class="block text-sm font-medium text-[#292524] mb-1">
+                                    Nom d'utilisateur
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-user text-[#78716c]"></i>
+                                    </div>
+                                    <input id="username" name="username" type="text" required 
+                                           class="form-input pl-11 "
+                                           placeholder="Entrez votre nom d'utilisateur">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-[#292524] mb-1">
+                                    Adresse email
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-envelope text-[#78716c]"></i>
+                                    </div>
+                                    <input id="email" name="email" type="email" required 
+                                           class="form-input pl-11 "
+                                           placeholder="votre@email.com">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-[#292524] mb-1">
+                                    Mot de passe
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-lock text-[#78716c]"></i>
+                                    </div>
+                                    <input id="password" name="password" type="password" required 
+                                           class="form-input pl-11 "
+                                           placeholder="••••••••">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button type="submit" 
+                                    class="group relative w-full flex justify-center py-3 px-4 border-0 text-sm font-medium rounded-full text-white transition duration-200" 
+                                    style="background:linear-gradient(90deg,#f59e0b,#fbbf24,#10b981,#059669);box-shadow:0 10px 25px rgba(245,158,11,0.3);"
+                                    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 15px 35px rgba(245,158,11,0.4)';this.style.filter='brightness(1.05)'"
+                                    onmouseout="this.style.transform='';this.style.boxShadow='0 10px 25px rgba(245,158,11,0.3)';this.style.filter=''">
+                                <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                </span>
+                                Se connecter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('login-form');
+
+    form.addEventListener('submit', function(e){
+        e.preventDefault(); // empêche le submit normal
+
+        const formData = new FormData(this);
+
+        fetch('/login_user', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === "success"){
+                window.location.href = data.redirect; // redirection JS
+            } else {
+                alert(data.message); // affiche l'erreur
+            }
+        })
+        .catch(error => console.error("Erreur:", error));
+    });
+});
+</script>
+
+</html>
